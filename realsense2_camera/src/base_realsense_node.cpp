@@ -1860,12 +1860,19 @@ void BaseRealSenseNode::setupStreams()
         {
             std::string module_name = sensor_profile.first;
             rs2::sensor sensor = active_sensors[module_name];
-            sensor.open(sensor_profile.second);
-            sensor.start(_sensors_callback[module_name]);
+
             if (sensor.is<rs2::depth_sensor>())
             {
                 _depth_scale_meters = sensor.as<rs2::depth_sensor>().get_depth_scale();
+                sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.0);
+                sensor.set_option(RS2_OPTION_EMITTER_ALWAYS_ON, 0.0);
+                sensor.set_option(RS2_OPTION_EMITTER_ON_OFF, 1.0);
+                sensor.set_option(RS2_OPTION_LASER_POWER, 110);
+                sensor.set_option(RS2_OPTION_VISUAL_PRESET, rs2_rs400_visual_preset::RS2_RS400_VISUAL_PRESET_HIGH_ACCURACY);
             }
+
+            sensor.open(sensor_profile.second);
+            sensor.start(_sensors_callback[module_name]);
         }
     }
     catch(const std::exception& ex)
